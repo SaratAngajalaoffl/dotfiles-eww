@@ -44,14 +44,14 @@
   :stacking "overlay"
   :exclusive false
   :geometry (geometry
-    :x "150px"
+    :x "20px"
     :y "20px"
-    :width "400px"
+    :width "500px"
     :anchor "top right")
   (audio-control-widget))
 
 (defwidget audio-control-widget []
-  (box :class "audio-menu" :orientation "v" :space-evenly false :halign "start" :valign "start"
+  (box :class "audio-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
     (device-row
       :name {replace(jq(audio_state, '.sink.name'), '^"|"$', '')}
       :volume {jq(audio_state, '.sink.volume')}
