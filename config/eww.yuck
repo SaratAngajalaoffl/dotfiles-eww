@@ -32,3 +32,70 @@
       (button :class "power-btn" :onclick "hyprlock & disown" "")
       (button :class "power-btn" :onclick "reboot" "")
       (button :class "power-btn" :onclick "shutdown now" ""))))
+
+;; -----------------------------------------------------------------
+;; Audio control
+;; -----------------------------------------------------------------
+
+(deflisten audio_state :initial "{}" "~/.config/eww/scripts/audio_state.sh")
+
+(defwindow audio-control
+  :monitor 0
+  :stacking "overlay"
+  :exclusive false
+  :geometry (geometry
+    :x "150px"
+    :y "20px"
+    :width "320px"
+    :anchor "top right")
+  (audio-control-widget))
+
+(defwidget audio-control-widget []
+  (box :class "audio-menu" :orientation "v" :space-evenly false :halign "start" :valign "start"
+    (device-row
+      :name {replace(jq(audio_state, '.sink.name'), '^"|"$', '')}
+      :volume {jq(audio_state, '.sink.volume')}
+      :muted {jq(audio_state, '.sink.mute') == 'true'}
+      :icon ""
+      :muted-icon ""
+      :mute-cmd "~/.config/eww/scripts/audio_ctl.sh sink-mute"
+      :volume-cmd "~/.config/eww/scripts/audio_ctl.sh sink-volume")
+    (box :class "section-label" :halign "start" :visible {jq(audio_state, '.apps') != '[]'} "Applications")
+    (box :orientation "v" :space-evenly false :class "app-list"
+      (for app in {jq(audio_state, ".apps")}
+        (app-row :app app
+          :mute-cmd "~/.config/eww/scripts/audio_ctl.sh app-mute"
+          :volume-cmd "~/.config/eww/scripts/audio_ctl.sh app-volume")))
+    (box :class "divider")
+    (device-row
+      :name {replace(jq(audio_state, '.source.name'), '^"|"$', '')}
+      :volume {jq(audio_state, '.source.volume')}
+      :muted {jq(audio_state, '.source.mute') == 'true'}
+      :icon ""
+      :muted-icon ""
+      :mute-cmd "~/.config/eww/scripts/audio_ctl.sh source-mute"
+      :volume-cmd "~/.config/eww/scripts/audio_ctl.sh source-volume")
+    (box :class "section-label" :halign "start" :visible {jq(audio_state, '.mic_apps') != '[]'} "Recording")
+    (box :orientation "v" :space-evenly false :class "app-list"
+      (for app in {jq(audio_state, ".mic_apps")}
+        (app-row :app app
+          :mute-cmd "~/.config/eww/scripts/audio_ctl.sh mic-mute"
+          :volume-cmd "~/.config/eww/scripts/audio_ctl.sh mic-volume")))))
+
+(defwidget device-row [name volume muted icon muted-icon mute-cmd volume-cmd]
+  (box :class "device-row" :orientation "v" :space-evenly false
+    (box :orientation "h" :space-evenly false :hexpand true :class "device-header"
+      (button :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon})
+      (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 22)
+      (label :class "device-volume" :text "${round(volume, 0)}%"))
+    (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")))
+
+(defwidget app-row [app mute-cmd volume-cmd]
+  (box :class "app-row" :orientation "h" :space-evenly false :hexpand true
+    (label :class "app-name" :text {replace(jq(app, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 14)
+    (button :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
+      :onclick "${mute-cmd} ${jq(app, '.index')}"
+      {jq(app, '.mute') == 'true' ? "" : ""})
+    (scale :class "app-volume-slider" :min 0 :max 150 :value {jq(app, '.volume')}
+      :onchange "${volume-cmd} ${jq(app, '.index')} {}")))
+

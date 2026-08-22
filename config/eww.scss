@@ -72,3 +72,128 @@ $accent: $red;
   background-color: $accent;
   color: $bg;
 }
+
+/* -----------------------------------------------------
+ * Audio control
+ * ----------------------------------------------------- */
+
+.audio-menu {
+  background-color: $bg;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.device-row {
+  padding: 4px 0px 10px 0px;
+}
+
+.device-header {
+  padding-bottom: 6px;
+}
+
+.icon-btn {
+  background-color: $bg-alt;
+  color: $text;
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-right: 10px;
+}
+
+.icon-btn:hover {
+  background-color: $accent;
+  color: $bg;
+}
+
+.icon-btn.muted {
+  color: $accent;
+}
+
+.device-name {
+  color: $text;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.device-volume {
+  color: $subtext;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.section-label {
+  color: $subtext;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 10px 0px 4px 2px;
+}
+
+.app-list {
+  padding-left: 4px;
+}
+
+.app-row {
+  padding: 4px 0px;
+}
+
+.app-name {
+  color: $text;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.app-mute-btn {
+  background-color: $bg-alt;
+  color: $text;
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin-right: 8px;
+}
+
+.app-mute-btn:hover {
+  background-color: $accent;
+  color: $bg;
+}
+
+.app-mute-btn.muted {
+  color: $accent;
+}
+
+.divider {
+  min-height: 1px;
+  background-color: $bg-alt;
+  margin: 6px 0px;
+}
+
+scale.volume-slider,
+scale.app-volume-slider {
+  min-height: 14px;
+}
+
+scale.volume-slider trough,
+scale.app-volume-slider trough {
+  min-height: 6px;
+  background-color: $bg-alt;
+  border-radius: 6px;
+}
+
+scale.volume-slider trough highlight,
+scale.app-volume-slider trough highlight {
+  min-height: 6px;
+  background-color: $accent;
+  border-radius: 6px;
+}
+
+scale.volume-slider trough slider,
+scale.app-volume-slider trough slider {
+  min-width: 12px;
+  min-height: 12px;
+  margin: -4px;
+  border-radius: 12px;
+  background-color: $text;
+}
+
+scale.volume-slider.muted trough highlight {
+  background-color: $overlay0;
+}
