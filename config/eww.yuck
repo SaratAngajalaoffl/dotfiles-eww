@@ -117,3 +117,51 @@
       (button :class "sink-btn ${jq(s, '.index') == current-index ? 'active' : ''}"
         :onclick "${move-cmd} ${jq(s, '.name')}"
         {replace(jq(s, '.description'), '^"|"$', '')}))))
+
+;; -----------------------------------------------------------------
+;; Bluetooth control
+;; -----------------------------------------------------------------
+
+(deflisten bluetooth_state :initial "{}" "~/.config/eww/scripts/bluetooth_state.sh")
+
+(defwindow bluetooth-control
+  :monitor 0
+  :stacking "overlay"
+  :exclusive false
+  :geometry (geometry
+    :x "0px"
+    :y "20px"
+    :width "380px"
+    :anchor "top right")
+  (bluetooth-control-widget))
+
+(defwidget bluetooth-control-widget []
+  (box :class "bt-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
+    (box :class "bt-header" :orientation "h" :space-evenly false :hexpand true
+      (label :class "bt-title" :text "Bluetooth" :hexpand true :halign "start")
+      (button :class "bt-pill-btn ${jq(bluetooth_state, '.scanning') == 'true' ? 'active' : ''}"
+        :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(bluetooth_state, '.scanning') == 'true' ? 'scan-off' : 'scan-on'}"
+        {jq(bluetooth_state, '.scanning') == 'true' ? "Stop" : "Scan"})
+      (button :class "bt-pill-btn ${jq(bluetooth_state, '.powered') == 'true' ? 'active' : ''}"
+        :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(bluetooth_state, '.powered') == 'true' ? 'power-off' : 'power-on'}"
+        {jq(bluetooth_state, '.powered') == 'true' ? "On" : "Off"}))
+    (box :class "bt-empty" :halign "center" :visible {jq(bluetooth_state, '.powered') != 'true'} "Bluetooth is off")
+    (box :class "bt-empty" :halign "center"
+      :visible {jq(bluetooth_state, '.powered') == 'true' && jq(bluetooth_state, '.devices') == '[]'}
+      "No devices found — tap Scan")
+    (box :orientation "v" :space-evenly false :class "bt-device-list"
+      (for dev in {jq(bluetooth_state, ".devices")}
+        (bt-device-row :dev dev)))))
+
+(defwidget bt-device-row [dev]
+  (box :class "bt-device-row ${jq(dev, '.connected') == 'true' ? 'connected' : ''}" :orientation "h" :space-evenly false :hexpand true
+    (label :class "bt-device-icon" :text "")
+    (box :orientation "v" :space-evenly false :hexpand true :halign "start" :valign "center"
+      (label :class "bt-device-name" :text {replace(jq(dev, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 24)
+      (label :class "bt-device-status" :text {replace(jq(dev, '.status'), '^"|"$', '')} :halign "start"))
+    (button :class "bt-action-btn ${jq(dev, '.connected') == 'true' ? 'disconnect' : ''}"
+      :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(dev, '.connected') == 'true' ? 'disconnect' : 'connect'} ${jq(dev, '.mac')}"
+      {jq(dev, '.connected') == 'true' ? "Disconnect" : "Connect"})
+    (button :class "bt-forget-btn" :visible {jq(dev, '.paired') == 'true'}
+      :onclick "~/.config/eww/scripts/bluetooth_ctl.sh forget ${jq(dev, '.mac')}"
+      "Forget")))

@@ -229,3 +229,109 @@ scale.volume-slider.muted trough highlight {
   color: $bg;
   font-weight: bold;
 }
+
+/* -----------------------------------------------------
+ * Bluetooth control
+ * ----------------------------------------------------- */
+
+.bt-menu {
+  background-color: $bg;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.bt-header {
+  padding-bottom: 10px;
+}
+
+.bt-title {
+  color: $text;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.bt-pill-btn {
+  background-color: $bg-alt;
+  color: $subtext;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-left: 8px;
+}
+
+.bt-pill-btn:hover {
+  color: $text;
+}
+
+.bt-pill-btn.active {
+  background-color: $accent;
+  color: $bg;
+}
+
+.bt-empty {
+  color: $subtext;
+  font-size: 12px;
+  padding: 16px 0px;
+}
+
+.bt-device-list {
+  padding-top: 2px;
+}
+
+.bt-device-row {
+  padding: 8px 4px;
+}
+
+.bt-device-icon {
+  color: $subtext;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.bt-device-row.connected .bt-device-icon {
+  color: $accent;
+}
+
+.bt-device-name {
+  color: $text;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.bt-device-status {
+  color: $subtext;
+  font-size: 11px;
+}
+
+.bt-action-btn {
+  background-color: $bg-alt;
+  color: $text;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-left: 8px;
+}
+
+.bt-action-btn:hover {
+  background-color: $accent;
+  color: $bg;
+}
+
+.bt-action-btn.disconnect {
+  color: $accent;
+}
+
+.bt-forget-btn {
+  background-color: transparent;
+  color: $subtext;
+  font-size: 11px;
+  border-radius: 8px;
+  padding: 5px 8px;
+  margin-left: 4px;
+}
+
+.bt-forget-btn:hover {
+  color: $accent;
+}
