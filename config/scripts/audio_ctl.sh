@@ -20,6 +20,12 @@ set -euo pipefail
 # leave apps/sinks sitting at odd values like 99% or 101%.
 round() { awk -v v="$1" 'BEGIN { printf "%d", int(v / 5 + 0.5) * 5 }'; }
 
+# Volume/mute are instant and drag-coupled (a slider fires this repeatedly
+# mid-drag), so they're left out of the busy/wait-cursor state - only
+# device switching (set-sink/app-sink), which can take a moment moving
+# multiple streams, sets it. Always cleared on exit regardless of outcome.
+trap 'eww update busy=false >/dev/null 2>&1 || true' EXIT
+
 cmd="${1:?usage: audio_ctl.sh <command> [args...]}"
 shift
 
@@ -33,12 +39,16 @@ app-mute) pactl set-sink-input-mute "$1" toggle ;;
 mic-volume) pactl set-source-output-volume "$1" "$(round "$2")%" ;;
 mic-mute) pactl set-source-output-mute "$1" toggle ;;
 set-sink)
+  eww update busy=true
   pactl set-default-sink "$1"
   pactl -f json list sink-inputs | jq -r '.[].index' | while read -r idx; do
     pactl move-sink-input "$idx" "$1"
   done
   ;;
-app-sink) pactl move-sink-input "$1" "$2" ;;
+app-sink)
+  eww update busy=true
+  pactl move-sink-input "$1" "$2"
+  ;;
 *)
   echo "unknown command: $cmd" >&2
   exit 1

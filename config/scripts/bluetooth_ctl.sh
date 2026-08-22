@@ -48,15 +48,22 @@ device_name() {
   bluetoothctl info "$1" 2>/dev/null | sed -n 's/^[[:space:]]*Name: //p' | head -1
 }
 
+# Scanning is a long-running background toggle with its own Scan/Stop
+# button state, so it's excluded here - the wait cursor is for the brief
+# one-shot actions below (power/connect/disconnect/forget), always cleared
+# on exit regardless of how the command finishes.
+trap 'eww update busy=false >/dev/null 2>&1 || true' EXIT
+
 cmd="${1:?usage: bluetooth_ctl.sh <command> [args...]}"
 shift
 
 case "$cmd" in
-power-on) busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Powered b true ;;
-power-off) busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Powered b false ;;
+power-on) eww update busy=true; busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Powered b true ;;
+power-off) eww update busy=true; busctl set-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Powered b false ;;
 scan-on) send_session "scan on" ;;
 scan-off) send_session "scan off" ;;
 connect)
+  eww update busy=true
   mac="${1:?mac required}"
   name=$(device_name "$mac")
   [[ -z "$name" ]] && name="$mac"
@@ -85,12 +92,14 @@ connect)
   exit 1
   ;;
 disconnect)
+  eww update busy=true
   mac="${1:?mac required}"
   name=$(device_name "$mac")
   [[ -z "$name" ]] && name="$mac"
   bluetoothctl disconnect "$mac" || { notify_fail "Couldn't disconnect ${name}."; exit 1; }
   ;;
 forget)
+  eww update busy=true
   mac="${1:?mac required}"
   name=$(device_name "$mac")
   [[ -z "$name" ]] && name="$mac"
