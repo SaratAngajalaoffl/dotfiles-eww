@@ -1,8 +1,9 @@
-$bg: #262626;
-$bg-alt: #313131;
-$text: #bebebe;
-$subtext: #8a8a8d;
-$accent: #d35f5f;
+@import "colors.scss";
+
+$bg: $base;
+$bg-alt: $surface0;
+$subtext: $subtext0;
+$accent: $red;
 
 * {
   all: unset;
