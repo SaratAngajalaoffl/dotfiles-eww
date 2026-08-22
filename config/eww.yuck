@@ -91,11 +91,14 @@
     (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")))
 
 (defwidget app-row [app mute-cmd volume-cmd]
-  (box :class "app-row" :orientation "h" :space-evenly false :hexpand true
-    (label :class "app-name" :text {replace(jq(app, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 14)
-    (button :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
-      :onclick "${mute-cmd} ${jq(app, '.index')}"
-      {jq(app, '.mute') == 'true' ? "" : ""})
-    (scale :class "app-volume-slider" :min 0 :max 150 :value {jq(app, '.volume')}
-      :onchange "${volume-cmd} ${jq(app, '.index')} {}")))
+  (box :class "app-row" :orientation "v" :space-evenly false :hexpand true
+    (box :orientation "h" :space-evenly false :hexpand true :class "app-row-header"
+      (label :class "app-name" :text {replace(jq(app, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 24)
+      (label :class "app-volume" :text "${round(jq(app, '.volume'), 0)}%"))
+    (box :orientation "h" :space-evenly false :hexpand true
+      (button :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
+        :onclick "${mute-cmd} ${jq(app, '.index')}"
+        {jq(app, '.mute') == 'true' ? "" : ""})
+      (scale :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
+        :onchange "${volume-cmd} ${jq(app, '.index')} {}"))))
 

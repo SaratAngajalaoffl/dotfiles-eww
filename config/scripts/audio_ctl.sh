@@ -13,7 +13,10 @@
 
 set -euo pipefail
 
-round() { printf '%.0f' "$1"; }
+# Snap a raw slider value to the nearest 5% so manual drags always land on
+# a clean number, even though pipewire's flat-volume model can otherwise
+# leave apps/sinks sitting at odd values like 99% or 101%.
+round() { awk -v v="$1" 'BEGIN { printf "%d", int(v / 5 + 0.5) * 5 }'; }
 
 cmd="${1:?usage: audio_ctl.sh <command> [args...]}"
 shift
