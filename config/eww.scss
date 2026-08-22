@@ -416,3 +416,39 @@ scale.volume-slider.muted trough highlight {
 .clip-delete-btn:hover {
   color: $accent;
 }
+
+/* -----------------------------------------------------
+ * Cliamp control
+ * ----------------------------------------------------- */
+
+.cliamp-menu {
+  background-color: $bg;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.cliamp-track {
+  color: $text;
+  font-size: 13px;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+.cliamp-controls {
+  padding: 0px 10px;
+}
+
+.cliamp-play-btn,
+.cliamp-nav-btn {
+  background-color: $bg-alt;
+  color: $text;
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+
+.cliamp-play-btn:hover,
+.cliamp-nav-btn:hover {
+  background-color: $accent;
+  color: $bg;
+}

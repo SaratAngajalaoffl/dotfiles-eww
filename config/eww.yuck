@@ -211,3 +211,37 @@
     (eventbox :cursor "pointer" (button :cursor "pointer" :class "clip-delete-btn"
       :onclick "~/.config/eww/scripts/clipboard_ctl.sh delete ${jq(item, '.id')}"
       ""))))
+
+;; -----------------------------------------------------------------
+;; Cliamp control
+;; -----------------------------------------------------------------
+
+(defpoll cliamp_state :interval "1s" :initial "{}" "~/.config/eww/scripts/cliamp_state.sh")
+
+(defwindow cliamp-control
+  :monitor 0
+  :stacking "overlay"
+  :exclusive false
+  :geometry (geometry
+    :x "240"
+    :y "20px"
+    :width "260px"
+    :anchor "top right")
+  (cliamp-control-widget))
+
+(defwidget cliamp-control-widget []
+  (box :class "cliamp-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
+    (label :class "cliamp-track"
+      :text {jq(cliamp_state, '.running') == 'true' ? replace(jq(cliamp_state, '.title'), '^"|"$', '') : "Cliamp is not running"}
+      :hexpand true :halign "start" :limit-width 30)
+    (box :class "cliamp-controls" :orientation "h" :space-evenly true :hexpand true
+      :visible {jq(cliamp_state, '.running') == 'true'}
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "cliamp-nav-btn"
+        :onclick "~/.config/eww/scripts/cliamp_ctl.sh prev"
+        ""))
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "cliamp-play-btn"
+        :onclick "~/.config/eww/scripts/cliamp_ctl.sh toggle"
+        {jq(cliamp_state, '.state') == '"playing"' ? "" : ""}))
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "cliamp-nav-btn"
+        :onclick "~/.config/eww/scripts/cliamp_ctl.sh next"
+        "")))))
