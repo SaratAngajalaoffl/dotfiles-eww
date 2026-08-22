@@ -1,0 +1,34 @@
+(deflisten cpu :initial "0%" "~/.config/eww/scripts/cpu.sh")
+(deflisten ram :initial "0%" "~/.config/eww/scripts/ram.sh")
+(deflisten gpu :initial "0%" "~/.config/eww/scripts/gpu.sh")
+
+(defwindow user-menu
+  :monitor 0
+  :stacking "overlay"
+  :exclusive false
+  :geometry (geometry
+    :x "-60px"
+    :y "20px"
+    :width "240px"
+    :anchor "top right")
+  (user-menu-widget))
+
+(defwidget user-menu-widget []
+  (box :class "menu" :orientation "v" :space-evenly false :halign "start" :valign "start"
+    (box :class "profile" :orientation "h" :space-evenly false :valign "center"
+      (box :class "avatar")
+      (label :class "username" :text "mugiwara" :halign "start"))
+    (box :class "stats" :orientation "v" :space-evenly false
+      (box :class "stat-row" :orientation "h" :hexpand true
+        (label :class "stat-label" :text "CPU" :hexpand true :halign "start")
+        (label :class "stat-value" :text cpu :halign "end"))
+      (box :class "stat-row" :orientation "h" :hexpand true
+        (label :class "stat-label" :text "RAM" :hexpand true :halign "start")
+        (label :class "stat-value" :text ram :halign "end"))
+      (box :class "stat-row" :orientation "h" :hexpand true
+        (label :class "stat-label" :text "GPU" :hexpand true :halign "start")
+        (label :class "stat-value" :text gpu :halign "end")))
+    (box :class "power-row" :orientation "h" :space-evenly true
+      (button :class "power-btn" :onclick "hyprlock & disown" "")
+      (button :class "power-btn" :onclick "reboot" "")
+      (button :class "power-btn" :onclick "shutdown now" ""))))
