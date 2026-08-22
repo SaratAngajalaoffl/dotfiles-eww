@@ -171,3 +171,43 @@
     (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-forget-btn" :visible {jq(dev, '.paired') == 'true'}
       :onclick "~/.config/eww/scripts/bluetooth_ctl.sh forget ${jq(dev, '.mac')}"
       "Forget"))))
+
+;; -----------------------------------------------------------------
+;; Clipboard history
+;; -----------------------------------------------------------------
+
+(deflisten clipboard_history :initial "[]" "~/.config/eww/scripts/clipboard_state.sh")
+
+(defwindow clipboard-history
+  :monitor 0
+  :stacking "overlay"
+  :exclusive false
+  :geometry (geometry
+    :x "0px"
+    :y "20px"
+    :width "420px"
+    :anchor "top right")
+  (clipboard-history-widget))
+
+(defwidget clipboard-history-widget []
+  (box :class "clip-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
+    (box :class "clip-header" :orientation "h" :space-evenly false :hexpand true
+      (label :class "clip-title" :text "Clipboard" :hexpand true :halign "start")
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "clip-pill-btn"
+        :onclick "~/.config/eww/scripts/clipboard_ctl.sh wipe"
+        "Clear")))
+    (box :class "clip-empty" :halign "center" :visible {clipboard_history == "[]"} "Clipboard history is empty")
+    (scroll :height 420 :hscroll false
+      (box :orientation "v" :space-evenly false :class "clip-item-list"
+        (for item in clipboard_history
+          (clip-item-row :item item))))))
+
+(defwidget clip-item-row [item]
+  (box :class "clip-item-row" :orientation "h" :space-evenly false :hexpand true
+    (label :class "clip-item-text" :text {replace(jq(item, '.preview'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 40)
+    (eventbox :cursor "pointer" (button :cursor "pointer" :class "clip-copy-btn"
+      :onclick "~/.config/eww/scripts/clipboard_ctl.sh copy ${jq(item, '.id')}"
+      ""))
+    (eventbox :cursor "pointer" (button :cursor "pointer" :class "clip-delete-btn"
+      :onclick "~/.config/eww/scripts/clipboard_ctl.sh delete ${jq(item, '.id')}"
+      ""))))
