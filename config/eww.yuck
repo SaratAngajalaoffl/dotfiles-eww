@@ -44,9 +44,9 @@
   :stacking "overlay"
   :exclusive false
   :geometry (geometry
-    :x "20px"
+    :x "0px"
     :y "20px"
-    :width "500px"
+    :width "450px"
     :anchor "top right")
   (audio-control-widget))
 
@@ -59,7 +59,8 @@
       :icon ""
       :muted-icon ""
       :mute-cmd "~/.config/eww/scripts/audio_ctl.sh sink-mute"
-      :volume-cmd "~/.config/eww/scripts/audio_ctl.sh sink-volume")
+      :volume-cmd "~/.config/eww/scripts/audio_ctl.sh sink-volume"
+      :show-sink-picker true)
     (box :class "section-label" :halign "start" :visible {jq(audio_state, '.apps') != '[]'} "Applications")
     (box :orientation "v" :space-evenly false :class "app-list"
       (for app in {jq(audio_state, ".apps")}
@@ -74,7 +75,8 @@
       :icon ""
       :muted-icon ""
       :mute-cmd "~/.config/eww/scripts/audio_ctl.sh source-mute"
-      :volume-cmd "~/.config/eww/scripts/audio_ctl.sh source-volume")
+      :volume-cmd "~/.config/eww/scripts/audio_ctl.sh source-volume"
+      :show-sink-picker false)
     (box :class "section-label" :halign "start" :visible {jq(audio_state, '.mic_apps') != '[]'} "Recording")
     (box :orientation "v" :space-evenly false :class "app-list"
       (for app in {jq(audio_state, ".mic_apps")}
@@ -82,13 +84,17 @@
           :mute-cmd "~/.config/eww/scripts/audio_ctl.sh mic-mute"
           :volume-cmd "~/.config/eww/scripts/audio_ctl.sh mic-volume")))))
 
-(defwidget device-row [name volume muted icon muted-icon mute-cmd volume-cmd]
+(defwidget device-row [name volume muted icon muted-icon mute-cmd volume-cmd show-sink-picker]
   (box :class "device-row" :orientation "v" :space-evenly false
     (box :orientation "h" :space-evenly false :hexpand true :class "device-header"
       (button :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon})
       (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 32)
       (label :class "device-volume" :text "${round(volume, 0)}%"))
-    (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")))
+    (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")
+    (box :visible show-sink-picker
+      (sink-picker
+        :current-index {jq(audio_state, '.sink.index')}
+        :move-cmd "~/.config/eww/scripts/audio_ctl.sh set-sink"))))
 
 (defwidget app-row [app mute-cmd volume-cmd]
   (box :class "app-row" :orientation "v" :space-evenly false :hexpand true
@@ -100,5 +106,14 @@
         :onclick "${mute-cmd} ${jq(app, '.index')}"
         {jq(app, '.mute') == 'true' ? "" : ""})
       (scale :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
-        :onchange "${volume-cmd} ${jq(app, '.index')} {}"))))
+        :onchange "${volume-cmd} ${jq(app, '.index')} {}"))
+    (sink-picker
+      :current-index {jq(app, '.sink')}
+      :move-cmd "~/.config/eww/scripts/audio_ctl.sh app-sink ${jq(app, '.index')}")))
 
+(defwidget sink-picker [current-index move-cmd]
+  (box :class "sink-picker" :orientation "h" :space-evenly false :halign "start"
+    (for s in {jq(audio_state, ".sinks")}
+      (button :class "sink-btn ${jq(s, '.index') == current-index ? 'active' : ''}"
+        :onclick "${move-cmd} ${jq(s, '.name')}"
+        {replace(jq(s, '.description'), '^"|"$', '')}))))

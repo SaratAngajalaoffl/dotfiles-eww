@@ -10,6 +10,8 @@
 #   audio_ctl.sh app-mute <sink-input-index>
 #   audio_ctl.sh mic-volume <source-output-index> <percent>
 #   audio_ctl.sh mic-mute <source-output-index>
+#   audio_ctl.sh set-sink <sink-name>            # switch the default output and move all apps to it
+#   audio_ctl.sh app-sink <sink-input-index> <sink-name>  # move one app to a different output
 
 set -euo pipefail
 
@@ -30,6 +32,13 @@ app-volume) pactl set-sink-input-volume "$1" "$(round "$2")%" ;;
 app-mute) pactl set-sink-input-mute "$1" toggle ;;
 mic-volume) pactl set-source-output-volume "$1" "$(round "$2")%" ;;
 mic-mute) pactl set-source-output-mute "$1" toggle ;;
+set-sink)
+  pactl set-default-sink "$1"
+  pactl -f json list sink-inputs | jq -r '.[].index' | while read -r idx; do
+    pactl move-sink-input "$idx" "$1"
+  done
+  ;;
+app-sink) pactl move-sink-input "$1" "$2" ;;
 *)
   echo "unknown command: $cmd" >&2
   exit 1

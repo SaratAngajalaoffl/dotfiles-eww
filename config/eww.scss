@@ -206,3 +206,26 @@ scale.app-volume-slider trough slider {
 scale.volume-slider.muted trough highlight {
   background-color: $overlay0;
 }
+
+.sink-picker {
+  padding-top: 6px;
+}
+
+.sink-btn {
+  background-color: $bg-alt;
+  color: $subtext;
+  font-size: 10px;
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-right: 6px;
+}
+
+.sink-btn:hover {
+  color: $text;
+}
+
+.sink-btn.active {
+  background-color: $accent;
+  color: $bg;
+  font-weight: bold;
+}

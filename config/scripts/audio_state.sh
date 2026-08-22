@@ -25,7 +25,8 @@ emit() {
     {
       sink: (([$sinks[] | select(.name == $default_sink)] | first) as $s | if $s == null then null else {index: $s.index, name: ($s.description // $s.name), volume: ($s | pct), mute: $s.mute} end),
       source: (([$sources[] | select(.name == $default_source)] | first) as $s | if $s == null then null else {index: $s.index, name: ($s.description // $s.name), volume: ($s | pct), mute: $s.mute} end),
-      apps: [$sink_inputs[] | {index, name: app_name, volume: pct, mute}],
+      sinks: [$sinks[] | {index, name, description: (.description // .name)}],
+      apps: [$sink_inputs[] | {index, sink, name: app_name, volume: pct, mute}],
       mic_apps: [$source_outputs[] | select(.source != null) | {index, name: app_name, volume: pct, mute}]
     }
     '
