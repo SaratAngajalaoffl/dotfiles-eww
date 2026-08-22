@@ -35,8 +35,15 @@ emit
 
 pactl subscribe 2>/dev/null | while read -r line; do
   case "$line" in
-  *"on sink"* | *"on source"* | *"on sink-input"* | *"on source-output"*)
-    emit
-    ;;
+  *"on sink"* | *"on source"* | *"on sink-input"* | *"on source-output"*) ;;
+  *) continue ;;
   esac
+
+  # Debounce: a slider drag fires a burst of these events (one per
+  # micro volume step), and re-emitting on every single one forces
+  # eww to re-render the app list mid-drag, which kills the GTK
+  # grab and makes the slider feel stuck. Swallow further events
+  # until things go quiet for a bit, then emit once.
+  while read -r -t 0.12 _; do :; done
+  emit
 done
