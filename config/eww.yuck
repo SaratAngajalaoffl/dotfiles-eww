@@ -96,7 +96,7 @@
       (eventbox :cursor "pointer" (button :cursor "pointer" :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon}))
       (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 32)
       (label :class "device-volume" :text "${round(volume, 0)}%"))
-    (eventbox :cursor "pointer" (scale :cursor "pointer" :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}"))
+    (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")
     (box :visible show-sink-picker
       (sink-picker
         :current-index {jq(audio_state, '.sink.index')}
@@ -111,8 +111,8 @@
       (eventbox :cursor "pointer" (button :cursor "pointer" :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
         :onclick "${mute-cmd} ${jq(app, '.index')}"
         {jq(app, '.mute') == 'true' ? "" : ""}))
-      (eventbox :cursor "pointer" (scale :cursor "pointer" :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
-        :onchange "${volume-cmd} ${jq(app, '.index')} {}")))
+      (scale :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
+        :onchange "${volume-cmd} ${jq(app, '.index')} {}"))
     (sink-picker
       :current-index {jq(app, '.sink')}
       :move-cmd "~/.config/eww/scripts/audio_ctl.sh app-sink ${jq(app, '.index')}")))
