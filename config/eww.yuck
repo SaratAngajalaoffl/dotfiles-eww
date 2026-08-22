@@ -35,9 +35,9 @@
         (label :class "stat-label" :text "GPU" :hexpand true :halign "start")
         (label :class "stat-value" :text gpu :halign "end")))
     (box :class "power-row" :orientation "h" :space-evenly true
-      (button :cursor "pointer" :class "power-btn" :onclick "hyprlock & disown" "")
-      (button :cursor "pointer" :class "power-btn" :onclick "reboot" "")
-      (button :cursor "pointer" :class "power-btn" :onclick "shutdown now" ""))))
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "hyprlock & disown" ""))
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "reboot" ""))
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "shutdown now" "")))))
 
 ;; -----------------------------------------------------------------
 ;; Audio control
@@ -57,7 +57,7 @@
   (audio-control-widget))
 
 (defwidget audio-control-widget []
-  (box :cursor {busy ? "wait" : "default"} :class "audio-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
+  (eventbox :cursor {busy ? "wait" : "default"} (box :class "audio-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
     (device-row
       :name {replace(jq(audio_state, '.sink.name'), '^"|"$', '')}
       :volume {jq(audio_state, '.sink.volume')}
@@ -88,15 +88,15 @@
       (for app in {jq(audio_state, ".mic_apps")}
         (app-row :app app
           :mute-cmd "~/.config/eww/scripts/audio_ctl.sh mic-mute"
-          :volume-cmd "~/.config/eww/scripts/audio_ctl.sh mic-volume")))))
+          :volume-cmd "~/.config/eww/scripts/audio_ctl.sh mic-volume"))))))
 
 (defwidget device-row [name volume muted icon muted-icon mute-cmd volume-cmd show-sink-picker]
   (box :class "device-row" :orientation "v" :space-evenly false
     (box :orientation "h" :space-evenly false :hexpand true :class "device-header"
-      (button :cursor "pointer" :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon})
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon}))
       (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 32)
       (label :class "device-volume" :text "${round(volume, 0)}%"))
-    (scale :cursor "pointer" :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")
+    (eventbox :cursor "pointer" (scale :cursor "pointer" :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}"))
     (box :visible show-sink-picker
       (sink-picker
         :current-index {jq(audio_state, '.sink.index')}
@@ -108,11 +108,11 @@
       (label :class "app-name" :text {replace(jq(app, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 34)
       (label :class "app-volume" :text "${round(jq(app, '.volume'), 0)}%"))
     (box :orientation "h" :space-evenly false :hexpand true
-      (button :cursor "pointer" :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
         :onclick "${mute-cmd} ${jq(app, '.index')}"
-        {jq(app, '.mute') == 'true' ? "" : ""})
-      (scale :cursor "pointer" :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
-        :onchange "${volume-cmd} ${jq(app, '.index')} {}"))
+        {jq(app, '.mute') == 'true' ? "" : ""}))
+      (eventbox :cursor "pointer" (scale :cursor "pointer" :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
+        :onchange "${volume-cmd} ${jq(app, '.index')} {}")))
     (sink-picker
       :current-index {jq(app, '.sink')}
       :move-cmd "~/.config/eww/scripts/audio_ctl.sh app-sink ${jq(app, '.index')}")))
@@ -120,9 +120,9 @@
 (defwidget sink-picker [current-index move-cmd]
   (box :class "sink-picker" :orientation "h" :space-evenly false :halign "start"
     (for s in {jq(audio_state, ".sinks")}
-      (button :cursor "pointer" :class "sink-btn ${jq(s, '.index') == current-index ? 'active' : ''}"
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "sink-btn ${jq(s, '.index') == current-index ? 'active' : ''}"
         :onclick "${move-cmd} ${jq(s, '.name')}"
-        {replace(jq(s, '.description'), '^"|"$', '')}))))
+        {replace(jq(s, '.description'), '^"|"$', '')})))))
 
 ;; -----------------------------------------------------------------
 ;; Bluetooth control
@@ -142,22 +142,22 @@
   (bluetooth-control-widget))
 
 (defwidget bluetooth-control-widget []
-  (box :cursor {busy ? "wait" : "default"} :class "bt-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
+  (eventbox :cursor {busy ? "wait" : "default"} (box :class "bt-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
     (box :class "bt-header" :orientation "h" :space-evenly false :hexpand true
       (label :class "bt-title" :text "Bluetooth" :hexpand true :halign "start")
-      (button :cursor "pointer" :class "bt-pill-btn ${jq(bluetooth_state, '.scanning') == 'true' ? 'active' : ''}"
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-pill-btn ${jq(bluetooth_state, '.scanning') == 'true' ? 'active' : ''}"
         :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(bluetooth_state, '.scanning') == 'true' ? 'scan-off' : 'scan-on'}"
-        {jq(bluetooth_state, '.scanning') == 'true' ? "Stop" : "Scan"})
-      (button :cursor "pointer" :class "bt-pill-btn ${jq(bluetooth_state, '.powered') == 'true' ? 'active' : ''}"
+        {jq(bluetooth_state, '.scanning') == 'true' ? "Stop" : "Scan"}))
+      (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-pill-btn ${jq(bluetooth_state, '.powered') == 'true' ? 'active' : ''}"
         :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(bluetooth_state, '.powered') == 'true' ? 'power-off' : 'power-on'}"
-        {jq(bluetooth_state, '.powered') == 'true' ? "On" : "Off"}))
+        {jq(bluetooth_state, '.powered') == 'true' ? "On" : "Off"})))
     (box :class "bt-empty" :halign "center" :visible {jq(bluetooth_state, '.powered') != 'true'} "Bluetooth is off")
     (box :class "bt-empty" :halign "center"
       :visible {jq(bluetooth_state, '.powered') == 'true' && jq(bluetooth_state, '.devices') == '[]'}
       "No devices found — tap Scan")
     (box :orientation "v" :space-evenly false :class "bt-device-list"
       (for dev in {jq(bluetooth_state, ".devices")}
-        (bt-device-row :dev dev)))))
+        (bt-device-row :dev dev))))))
 
 (defwidget bt-device-row [dev]
   (box :class "bt-device-row ${jq(dev, '.connected') == 'true' ? 'connected' : ''}" :orientation "h" :space-evenly false :hexpand true
@@ -165,9 +165,9 @@
     (box :orientation "v" :space-evenly false :hexpand true :halign "start" :valign "center"
       (label :class "bt-device-name" :text {replace(jq(dev, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 24)
       (label :class "bt-device-status" :text {replace(jq(dev, '.status'), '^"|"$', '')} :halign "start"))
-    (button :cursor "pointer" :class "bt-action-btn ${jq(dev, '.connected') == 'true' ? 'disconnect' : ''}"
+    (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-action-btn ${jq(dev, '.connected') == 'true' ? 'disconnect' : ''}"
       :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(dev, '.connected') == 'true' ? 'disconnect' : 'connect'} ${jq(dev, '.mac')}"
-      {jq(dev, '.connected') == 'true' ? "Disconnect" : "Connect"})
-    (button :cursor "pointer" :class "bt-forget-btn" :visible {jq(dev, '.paired') == 'true'}
+      {jq(dev, '.connected') == 'true' ? "Disconnect" : "Connect"}))
+    (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-forget-btn" :visible {jq(dev, '.paired') == 'true'}
       :onclick "~/.config/eww/scripts/bluetooth_ctl.sh forget ${jq(dev, '.mac')}"
-      "Forget")))
+      "Forget"))))
