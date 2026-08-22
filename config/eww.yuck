@@ -46,7 +46,7 @@
   :geometry (geometry
     :x "150px"
     :y "20px"
-    :width "320px"
+    :width "400px"
     :anchor "top right")
   (audio-control-widget))
 
@@ -86,14 +86,14 @@
   (box :class "device-row" :orientation "v" :space-evenly false
     (box :orientation "h" :space-evenly false :hexpand true :class "device-header"
       (button :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon})
-      (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 22)
+      (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 32)
       (label :class "device-volume" :text "${round(volume, 0)}%"))
     (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")))
 
 (defwidget app-row [app mute-cmd volume-cmd]
   (box :class "app-row" :orientation "v" :space-evenly false :hexpand true
     (box :orientation "h" :space-evenly false :hexpand true :class "app-row-header"
-      (label :class "app-name" :text {replace(jq(app, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 24)
+      (label :class "app-name" :text {replace(jq(app, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 34)
       (label :class "app-volume" :text "${round(jq(app, '.volume'), 0)}%"))
     (box :orientation "h" :space-evenly false :hexpand true
       (button :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
