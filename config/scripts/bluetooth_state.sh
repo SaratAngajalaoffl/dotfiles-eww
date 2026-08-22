@@ -43,7 +43,7 @@ emit() {
     while read -r mac; do
       [[ -z "$mac" ]] && continue
       path_mac="${mac//:/_}"
-      pct=$(busctl get-property org.bluez "/org/bluez/hci0/dev_${path_mac}" org.bluez.Battery1 Percentage 2>/dev/null | awk '{print $2}')
+      pct=$(busctl get-property org.bluez "/org/bluez/hci0/dev_${path_mac}" org.bluez.Battery1 Percentage 2>/dev/null | awk '{print $2}') || true
       [[ "$pct" =~ ^[0-9]+$ ]] && pairs+=("\"$mac\":$pct")
     done <<<"$macs"
   fi

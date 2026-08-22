@@ -40,6 +40,14 @@ send_session() {
   echo "$1" >"$bt_fifo"
 }
 
+notify_fail() {
+  notify-send -a "Bluetooth" -u normal "Bluetooth" "$1" 2>/dev/null || true
+}
+
+device_name() {
+  bluetoothctl info "$1" 2>/dev/null | sed -n 's/^[[:space:]]*Name: //p' | head -1
+}
+
 cmd="${1:?usage: bluetooth_ctl.sh <command> [args...]}"
 shift
 
@@ -50,12 +58,44 @@ scan-on) send_session "scan on" ;;
 scan-off) send_session "scan off" ;;
 connect)
   mac="${1:?mac required}"
-  bluetoothctl pair "$mac" || true
-  bluetoothctl trust "$mac" || true
-  bluetoothctl connect "$mac"
+  name=$(device_name "$mac")
+  [[ -z "$name" ]] && name="$mac"
+
+  if bluetoothctl connect "$mac"; then
+    exit 0
+  fi
+
+  # A device BlueZ still lists as Paired can have a stale/missing link key
+  # (e.g. it was re-paired with a different host since), which fails connect
+  # with br-connection-key-missing rather than anything `pair`/`trust` can
+  # fix directly. Forget it and try a clean pair — this only succeeds if the
+  # device is currently powered on and in pairing/discoverable mode, so give
+  # it a brief scan window to be rediscovered first.
+  bluetoothctl remove "$mac" >/dev/null 2>&1 || true
+  send_session "scan on"
+  sleep 4
+  send_session "scan off"
+  sleep 0.5
+
+  if bluetoothctl pair "$mac" && bluetoothctl trust "$mac" >/dev/null 2>&1 && bluetoothctl connect "$mac"; then
+    exit 0
+  fi
+
+  notify_fail "Couldn't connect to ${name}. Put it in pairing mode and try again."
+  exit 1
   ;;
-disconnect) bluetoothctl disconnect "${1:?mac required}" ;;
-forget) bluetoothctl remove "${1:?mac required}" ;;
+disconnect)
+  mac="${1:?mac required}"
+  name=$(device_name "$mac")
+  [[ -z "$name" ]] && name="$mac"
+  bluetoothctl disconnect "$mac" || { notify_fail "Couldn't disconnect ${name}."; exit 1; }
+  ;;
+forget)
+  mac="${1:?mac required}"
+  name=$(device_name "$mac")
+  [[ -z "$name" ]] && name="$mac"
+  bluetoothctl remove "$mac" || { notify_fail "Couldn't forget ${name}."; exit 1; }
+  ;;
 *)
   echo "unknown command: $cmd" >&2
   exit 1
