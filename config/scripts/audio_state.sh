@@ -16,7 +16,6 @@ emit() {
     --argjson sinks "$(pactl -f json list sinks)" \
     --argjson sources "$(pactl -f json list sources)" \
     --argjson sink_inputs "$(pactl -f json list sink-inputs)" \
-    --argjson source_outputs "$(pactl -f json list source-outputs)" \
     --arg default_sink "$default_sink" \
     --arg default_source "$default_source" \
     '
@@ -26,8 +25,8 @@ emit() {
       sink: (([$sinks[] | select(.name == $default_sink)] | first) as $s | if $s == null then null else {index: $s.index, name: ($s.description // $s.name), volume: ($s | pct), mute: $s.mute} end),
       source: (([$sources[] | select(.name == $default_source)] | first) as $s | if $s == null then null else {index: $s.index, name: ($s.description // $s.name), volume: ($s | pct), mute: $s.mute} end),
       sinks: [$sinks[] | {index, name, description: (.description // .name)}],
-      apps: [$sink_inputs[] | {index, sink, name: app_name, volume: pct, mute}],
-      mic_apps: [$source_outputs[] | select(.source != null) | {index, name: app_name, volume: pct, mute}]
+      sources: [$sources[] | select(.monitor_source == "") | {index, name, description: (.description // .name)}],
+      apps: [$sink_inputs[] | {index, sink, name: app_name, volume: pct, mute}]
     }
     '
 }
@@ -36,7 +35,7 @@ emit
 
 pactl subscribe 2>/dev/null | while read -r line; do
   case "$line" in
-  *"on sink"* | *"on source"* | *"on sink-input"* | *"on source-output"*) ;;
+  *"on sink"* | *"on source"* | *"on sink-input"* | *"on server"*) ;;
   *) continue ;;
   esac
 

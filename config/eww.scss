@@ -55,6 +55,24 @@ $accent: $red;
   font-weight: bold;
 }
 
+.update-row {
+  padding: 0px 6px 6px 6px;
+}
+
+.update-btn {
+  background-color: $accent;
+  color: $bg;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.update-btn:hover {
+  background-color: $bg-alt;
+  color: $text;
+}
+
 .power-row {
   padding: 0px;
 }

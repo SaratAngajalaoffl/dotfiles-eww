@@ -1,6 +1,4 @@
-(deflisten cpu :initial "0%" "~/.config/eww/scripts/cpu.sh")
-(deflisten ram :initial "0%" "~/.config/eww/scripts/ram.sh")
-(deflisten gpu :initial "0%" "~/.config/eww/scripts/gpu.sh")
+(deflisten pkg_updates :initial "0" "~/.config/eww/scripts/updates.sh")
 
 ;; Set true/false by control scripts (via `eww update busy=...`) around
 ;; actions slow enough to need a loading indicator - device switching,
@@ -26,14 +24,12 @@
       (label :class "username" :text "mugiwara" :halign "start"))
     (box :class "stats" :orientation "v" :space-evenly false
       (box :class "stat-row" :orientation "h" :hexpand true
-        (label :class "stat-label" :text "CPU" :hexpand true :halign "start")
-        (label :class "stat-value" :text cpu :halign "end"))
-      (box :class "stat-row" :orientation "h" :hexpand true
-        (label :class "stat-label" :text "RAM" :hexpand true :halign "start")
-        (label :class "stat-value" :text ram :halign "end"))
-      (box :class "stat-row" :orientation "h" :hexpand true
-        (label :class "stat-label" :text "GPU" :hexpand true :halign "start")
-        (label :class "stat-value" :text gpu :halign "end")))
+        (label :class "stat-label" :text "Updates" :hexpand true :halign "start")
+        (label :class "stat-value" :text pkg_updates :halign "end"))
+      (box :class "update-row" :visible {pkg_updates != "0"}
+        (eventbox :cursor "pointer" (button :cursor "pointer" :class "update-btn"
+          :onclick "~/.config/eww/scripts/updates_ctl.sh update & disown"
+          "Update"))))
     (box :class "power-row" :orientation "h" :space-evenly true
       (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "hyprlock & disown" ""))
       (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "reboot" ""))
@@ -66,7 +62,9 @@
       :muted-icon ""
       :mute-cmd "~/.config/eww/scripts/audio_ctl.sh sink-mute"
       :volume-cmd "~/.config/eww/scripts/audio_ctl.sh sink-volume"
-      :show-sink-picker true)
+      :devices {jq(audio_state, '.sinks')}
+      :current-index {jq(audio_state, '.sink.index')}
+      :move-cmd "~/.config/eww/scripts/audio_ctl.sh set-sink")
     (box :class "section-label" :halign "start" :visible {jq(audio_state, '.apps') != '[]'} "Applications")
     (box :orientation "v" :space-evenly false :class "app-list"
       (for app in {jq(audio_state, ".apps")}
@@ -82,25 +80,22 @@
       :muted-icon ""
       :mute-cmd "~/.config/eww/scripts/audio_ctl.sh source-mute"
       :volume-cmd "~/.config/eww/scripts/audio_ctl.sh source-volume"
-      :show-sink-picker false)
-    (box :class "section-label" :halign "start" :visible {jq(audio_state, '.mic_apps') != '[]'} "Recording")
-    (box :orientation "v" :space-evenly false :class "app-list"
-      (for app in {jq(audio_state, ".mic_apps")}
-        (app-row :app app
-          :mute-cmd "~/.config/eww/scripts/audio_ctl.sh mic-mute"
-          :volume-cmd "~/.config/eww/scripts/audio_ctl.sh mic-volume"))))))
+      :devices {jq(audio_state, '.sources')}
+      :current-index {jq(audio_state, '.source.index')}
+      :move-cmd "~/.config/eww/scripts/audio_ctl.sh set-source"))))
 
-(defwidget device-row [name volume muted icon muted-icon mute-cmd volume-cmd show-sink-picker]
+(defwidget device-row [name volume muted icon muted-icon mute-cmd volume-cmd devices current-index move-cmd]
   (box :class "device-row" :orientation "v" :space-evenly false
     (box :orientation "h" :space-evenly false :hexpand true :class "device-header"
       (eventbox :cursor "pointer" (button :cursor "pointer" :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon}))
       (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 32)
       (label :class "device-volume" :text "${round(volume, 0)}%"))
     (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")
-    (box :visible show-sink-picker
-      (sink-picker
-        :current-index {jq(audio_state, '.sink.index')}
-        :move-cmd "~/.config/eww/scripts/audio_ctl.sh set-sink"))))
+    (box :visible {devices != "[]"}
+      (device-picker
+        :devices devices
+        :current-index current-index
+        :move-cmd move-cmd))))
 
 (defwidget app-row [app mute-cmd volume-cmd]
   (box :class "app-row" :orientation "v" :space-evenly false :hexpand true
@@ -113,13 +108,14 @@
         {jq(app, '.mute') == 'true' ? "" : ""}))
       (scale :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
         :onchange "${volume-cmd} ${jq(app, '.index')} {}"))
-    (sink-picker
+    (device-picker
+      :devices {jq(audio_state, '.sinks')}
       :current-index {jq(app, '.sink')}
       :move-cmd "~/.config/eww/scripts/audio_ctl.sh app-sink ${jq(app, '.index')}")))
 
-(defwidget sink-picker [current-index move-cmd]
+(defwidget device-picker [devices current-index move-cmd]
   (box :class "sink-picker" :orientation "h" :space-evenly false :halign "start"
-    (for s in {jq(audio_state, ".sinks")}
+    (for s in devices
       (eventbox :cursor "pointer" (button :cursor "pointer" :class "sink-btn ${jq(s, '.index') == current-index ? 'active' : ''}"
         :onclick "${move-cmd} ${jq(s, '.name')}"
         {replace(jq(s, '.description'), '^"|"$', '')})))))

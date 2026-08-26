@@ -8,10 +8,9 @@
 #   audio_ctl.sh source-mute
 #   audio_ctl.sh app-volume <sink-input-index> <percent>
 #   audio_ctl.sh app-mute <sink-input-index>
-#   audio_ctl.sh mic-volume <source-output-index> <percent>
-#   audio_ctl.sh mic-mute <source-output-index>
 #   audio_ctl.sh set-sink <sink-name>            # switch the default output and move all apps to it
 #   audio_ctl.sh app-sink <sink-input-index> <sink-name>  # move one app to a different output
+#   audio_ctl.sh set-source <source-name>        # switch the default input and move all apps to it
 
 set -euo pipefail
 
@@ -36,13 +35,18 @@ source-volume) pactl set-source-volume @DEFAULT_SOURCE@ "$(round "$1")%" ;;
 source-mute) pactl set-source-mute @DEFAULT_SOURCE@ toggle ;;
 app-volume) pactl set-sink-input-volume "$1" "$(round "$2")%" ;;
 app-mute) pactl set-sink-input-mute "$1" toggle ;;
-mic-volume) pactl set-source-output-volume "$1" "$(round "$2")%" ;;
-mic-mute) pactl set-source-output-mute "$1" toggle ;;
 set-sink)
   eww update busy=true
   pactl set-default-sink "$1"
   pactl -f json list sink-inputs | jq -r '.[].index' | while read -r idx; do
     pactl move-sink-input "$idx" "$1"
+  done
+  ;;
+set-source)
+  eww update busy=true
+  pactl set-default-source "$1"
+  pactl -f json list source-outputs | jq -r '.[].index' | while read -r idx; do
+    pactl move-source-output "$idx" "$1"
   done
   ;;
 app-sink)
