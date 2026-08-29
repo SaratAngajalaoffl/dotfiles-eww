@@ -436,37 +436,115 @@ scale.volume-slider.muted trough highlight {
 }
 
 /* -----------------------------------------------------
- * Cliamp control
+ * Spotify control
  * ----------------------------------------------------- */
 
-.cliamp-menu {
+.spotify-menu {
   background-color: $bg;
   border-radius: 14px;
   padding: 14px;
 }
 
-.cliamp-track {
+.spotify-track {
   color: $text;
   font-size: 13px;
   font-weight: bold;
-  padding-bottom: 10px;
+  padding: 0 10px 10px 10px;
 }
 
-.cliamp-controls {
-  padding: 0px 10px;
+.spotify-controls {
+  padding: 0px 4px 10px 4px;
 }
 
-.cliamp-play-btn,
-.cliamp-nav-btn {
+.spotify-play-btn,
+.spotify-nav-btn {
   background-color: $bg-alt;
   color: $text;
   font-size: 14px;
   border-radius: 8px;
   padding: 8px 14px;
+  margin: 0 6px;
 }
 
-.cliamp-play-btn:hover,
-.cliamp-nav-btn:hover {
+.spotify-play-btn:hover,
+.spotify-nav-btn:hover {
   background-color: $accent;
   color: $bg;
+}
+
+scale.spotify-progress-slider {
+  min-height: 14px;
+  margin: 0px 10px 10px 10px;
+}
+
+scale.spotify-progress-slider trough {
+  min-height: 6px;
+  background-color: $bg-alt;
+  border-radius: 6px;
+}
+
+scale.spotify-progress-slider trough highlight {
+  min-height: 6px;
+  background-color: $accent;
+  border-radius: 6px;
+}
+
+scale.spotify-progress-slider trough slider {
+  min-width: 12px;
+  min-height: 12px;
+  margin: -4px;
+  border-radius: 12px;
+  background-color: $text;
+}
+
+.spotify-section-label {
+  color: $subtext;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 10px;
+}
+
+.spotify-playlist-list,
+.spotify-search-results {
+  padding-top: 2px;
+}
+
+.spotify-playlist-row,
+.spotify-track-row {
+  padding: 6px 10px;
+}
+
+.spotify-playlist-name,
+.spotify-result-name {
+  color: $text;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.spotify-result-artist {
+  color: $subtext;
+  font-size: 11px;
+}
+
+.spotify-play-icon-btn {
+  background-color: $bg-alt;
+  color: $text;
+  font-size: 11px;
+  border-radius: 8px;
+  padding: 5px 8px;
+  margin-left: 6px;
+}
+
+.spotify-play-icon-btn:hover {
+  background-color: $accent;
+  color: $bg;
+}
+
+.spotify-search-input {
+  background-color: $bg-alt;
+  color: $text;
+  font-size: 12px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 8px 10px 6px 10px;
 }

@@ -27,13 +27,13 @@
         (label :class "stat-label" :text "Updates" :hexpand true :halign "start")
         (label :class "stat-value" :text pkg_updates :halign "end"))
       (box :class "update-row" :visible {pkg_updates != "0"}
-        (eventbox :cursor "pointer" (button :cursor "pointer" :class "update-btn"
+        (eventbox :cursor "pointer" (button :class "update-btn"
           :onclick "~/.config/eww/scripts/updates_ctl.sh update & disown"
           "Update"))))
     (box :class "power-row" :orientation "h" :space-evenly true
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "hyprlock & disown" ""))
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "reboot" ""))
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "power-btn" :onclick "shutdown now" "")))))
+      (eventbox :cursor "pointer" (button :class "power-btn" :onclick "hyprlock & disown" ""))
+      (eventbox :cursor "pointer" (button :class "power-btn" :onclick "reboot" ""))
+      (eventbox :cursor "pointer" (button :class "power-btn" :onclick "shutdown now" "")))))
 
 ;; -----------------------------------------------------------------
 ;; Audio control
@@ -87,7 +87,7 @@
 (defwidget device-row [name volume muted icon muted-icon mute-cmd volume-cmd devices current-index move-cmd]
   (box :class "device-row" :orientation "v" :space-evenly false
     (box :orientation "h" :space-evenly false :hexpand true :class "device-header"
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon}))
+      (eventbox :cursor "pointer" (button :class "icon-btn ${muted ? 'muted' : ''}" :onclick mute-cmd {muted ? muted-icon : icon}))
       (label :class "device-name" :text name :hexpand true :halign "start" :limit-width 32)
       (label :class "device-volume" :text "${round(volume, 0)}%"))
     (scale :class "volume-slider ${muted ? 'muted' : ''}" :min 0 :max 100 :value volume :onchange "${volume-cmd} {}")
@@ -103,7 +103,7 @@
       (label :class "app-name" :text {replace(jq(app, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 34)
       (label :class "app-volume" :text "${round(jq(app, '.volume'), 0)}%"))
     (box :orientation "h" :space-evenly false :hexpand true
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
+      (eventbox :cursor "pointer" (button :class "app-mute-btn ${jq(app, '.mute') == 'true' ? 'muted' : ''}"
         :onclick "${mute-cmd} ${jq(app, '.index')}"
         {jq(app, '.mute') == 'true' ? "" : ""}))
       (scale :class "app-volume-slider" :hexpand true :min 0 :max 150 :value {jq(app, '.volume')}
@@ -116,7 +116,7 @@
 (defwidget device-picker [devices current-index move-cmd]
   (box :class "sink-picker" :orientation "h" :space-evenly false :halign "start"
     (for s in devices
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "sink-btn ${jq(s, '.index') == current-index ? 'active' : ''}"
+      (eventbox :cursor "pointer" (button :class "sink-btn ${jq(s, '.index') == current-index ? 'active' : ''}"
         :onclick "${move-cmd} ${jq(s, '.name')}"
         {replace(jq(s, '.description'), '^"|"$', '')})))))
 
@@ -141,10 +141,10 @@
   (eventbox :cursor {busy ? "wait" : "default"} (box :class "bt-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
     (box :class "bt-header" :orientation "h" :space-evenly false :hexpand true
       (label :class "bt-title" :text "Bluetooth" :hexpand true :halign "start")
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-pill-btn ${jq(bluetooth_state, '.scanning') == 'true' ? 'active' : ''}"
+      (eventbox :cursor "pointer" (button :class "bt-pill-btn ${jq(bluetooth_state, '.scanning') == 'true' ? 'active' : ''}"
         :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(bluetooth_state, '.scanning') == 'true' ? 'scan-off' : 'scan-on'}"
         {jq(bluetooth_state, '.scanning') == 'true' ? "Stop" : "Scan"}))
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-pill-btn ${jq(bluetooth_state, '.powered') == 'true' ? 'active' : ''}"
+      (eventbox :cursor "pointer" (button :class "bt-pill-btn ${jq(bluetooth_state, '.powered') == 'true' ? 'active' : ''}"
         :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(bluetooth_state, '.powered') == 'true' ? 'power-off' : 'power-on'}"
         {jq(bluetooth_state, '.powered') == 'true' ? "On" : "Off"})))
     (box :class "bt-empty" :halign "center" :visible {jq(bluetooth_state, '.powered') != 'true'} "Bluetooth is off")
@@ -161,10 +161,10 @@
     (box :orientation "v" :space-evenly false :hexpand true :halign "start" :valign "center"
       (label :class "bt-device-name" :text {replace(jq(dev, '.name'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 24)
       (label :class "bt-device-status" :text {replace(jq(dev, '.status'), '^"|"$', '')} :halign "start"))
-    (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-action-btn ${jq(dev, '.connected') == 'true' ? 'disconnect' : ''}"
+    (eventbox :cursor "pointer" (button :class "bt-action-btn ${jq(dev, '.connected') == 'true' ? 'disconnect' : ''}"
       :onclick "~/.config/eww/scripts/bluetooth_ctl.sh ${jq(dev, '.connected') == 'true' ? 'disconnect' : 'connect'} ${jq(dev, '.mac')}"
       {jq(dev, '.connected') == 'true' ? "Disconnect" : "Connect"}))
-    (eventbox :cursor "pointer" (button :cursor "pointer" :class "bt-forget-btn" :visible {jq(dev, '.paired') == 'true'}
+    (eventbox :cursor "pointer" (button :class "bt-forget-btn" :visible {jq(dev, '.paired') == 'true'}
       :onclick "~/.config/eww/scripts/bluetooth_ctl.sh forget ${jq(dev, '.mac')}"
       "Forget"))))
 
@@ -189,7 +189,7 @@
   (box :class "clip-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
     (box :class "clip-header" :orientation "h" :space-evenly false :hexpand true
       (label :class "clip-title" :text "Clipboard" :hexpand true :halign "start")
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "clip-pill-btn"
+      (eventbox :cursor "pointer" (button :class "clip-pill-btn"
         :onclick "~/.config/eww/scripts/clipboard_ctl.sh wipe"
         "Clear")))
     (box :class "clip-empty" :halign "center" :visible {clipboard_history == "[]"} "Clipboard history is empty")
@@ -201,43 +201,88 @@
 (defwidget clip-item-row [item]
   (box :class "clip-item-row" :orientation "h" :space-evenly false :hexpand true
     (label :class "clip-item-text" :text {replace(jq(item, '.preview'), '^"|"$', '')} :hexpand true :halign "start" :limit-width 40)
-    (eventbox :cursor "pointer" (button :cursor "pointer" :class "clip-copy-btn"
+    (eventbox :cursor "pointer" (button :class "clip-copy-btn"
       :onclick "~/.config/eww/scripts/clipboard_ctl.sh copy ${jq(item, '.id')}"
       ""))
-    (eventbox :cursor "pointer" (button :cursor "pointer" :class "clip-delete-btn"
+    (eventbox :cursor "pointer" (button :class "clip-delete-btn"
       :onclick "~/.config/eww/scripts/clipboard_ctl.sh delete ${jq(item, '.id')}"
       ""))))
 
 ;; -----------------------------------------------------------------
-;; Cliamp control
+;; Spotify control
 ;; -----------------------------------------------------------------
 
-(defpoll cliamp_state :interval "1s" :initial "{}" "~/.config/eww/scripts/cliamp_state.sh")
+(defpoll spotify_state :interval "1s" :initial "{}" "~/.config/eww/scripts/spotify_state.sh")
+(defpoll spotify_playlists :interval "10s" :initial "[]" "~/.config/eww/scripts/spotify_playlists_state.sh")
+(deflisten spotify_search_results :initial "[]" "~/.config/eww/scripts/spotify_search_state.sh")
+(defvar spotify_search_query "")
 
-(defwindow cliamp-control
+(defwindow spotify-control
   :monitor 0
   :stacking "overlay"
   :exclusive false
+  :focusable "ondemand"
   :geometry (geometry
     :x "240"
     :y "20px"
-    :width "260px"
+    :width "300px"
     :anchor "top right")
-  (cliamp-control-widget))
+  (spotify-control-widget))
 
-(defwidget cliamp-control-widget []
-  (box :class "cliamp-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
-    (label :class "cliamp-track"
-      :text {jq(cliamp_state, '.running') == 'true' ? replace(jq(cliamp_state, '.title'), '^"|"$', '') : "Cliamp is not running"}
-      :hexpand true :halign "start" :limit-width 30)
-    (box :class "cliamp-controls" :orientation "h" :space-evenly true :hexpand true
-      :visible {jq(cliamp_state, '.running') == 'true'}
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "cliamp-nav-btn"
-        :onclick "~/.config/eww/scripts/cliamp_ctl.sh prev"
+(defwidget spotify-control-widget []
+  (box :class "spotify-menu" :orientation "v" :space-evenly false :hexpand true :halign "fill" :valign "start"
+    (label :class "spotify-track"
+      :text {jq(spotify_state, '.running') == 'true' ? (replace(jq(spotify_state, '.title'), '^"|"$', '') + " — " + replace(jq(spotify_state, '.artist'), '^"|"$', '')) : "Soloist is not running"}
+      :hexpand true :halign "start" :limit-width 34 :wrap true)
+
+    (box :class "spotify-controls" :orientation "h" :space-evenly true :hexpand true
+      :visible {jq(spotify_state, '.running') == 'true'}
+      (eventbox :cursor "pointer" (button :class "spotify-nav-btn"
+        :onclick "~/.config/eww/scripts/spotify_ctl.sh prev"
         ""))
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "cliamp-play-btn"
-        :onclick "~/.config/eww/scripts/cliamp_ctl.sh toggle"
-        {jq(cliamp_state, '.state') == '"playing"' ? "" : ""}))
-      (eventbox :cursor "pointer" (button :cursor "pointer" :class "cliamp-nav-btn"
-        :onclick "~/.config/eww/scripts/cliamp_ctl.sh next"
-        "")))))
+      (eventbox :cursor "pointer" (button :class "spotify-play-btn"
+        :onclick "~/.config/eww/scripts/spotify_ctl.sh toggle"
+        {jq(spotify_state, '.state') == '"playing"' ? "" : ""}))
+      (eventbox :cursor "pointer" (button :class "spotify-nav-btn"
+        :onclick "~/.config/eww/scripts/spotify_ctl.sh next"
+        "")))
+
+    (scale :class "spotify-progress-slider" :hexpand true
+      :visible {jq(spotify_state, '.running') == 'true'}
+      :min 0
+      :max {jq(spotify_state, '.duration_ms') == "null" ? 0 : jq(spotify_state, '.duration_ms')}
+      :value {jq(spotify_state, '.position_ms') == "null" ? 0 : jq(spotify_state, '.position_ms')}
+      :onchange "~/.config/eww/scripts/spotify_ctl.sh seek {}")
+
+    (box :class "spotify-section-label" :halign "start" :visible {jq(spotify_playlists, 'length') != '0'} "Playlists")
+    (box :orientation "v" :space-evenly false :class "spotify-playlist-list"
+      (for pl in spotify_playlists
+        (spotify-playlist-row :pl pl)))
+
+    (box :class "spotify-section-label" :halign "start" "Search")
+    (input :class "spotify-search-input"
+      :value spotify_search_query
+      :timeout "5s"
+      :onaccept "~/.config/eww/scripts/spotify_search_ctl.sh {}")
+    (box :orientation "v" :space-evenly false :class "spotify-search-results"
+      (for track in spotify_search_results
+        (spotify-track-row :track track)))))
+
+(defwidget spotify-playlist-row [pl]
+  (box :class "spotify-playlist-row" :orientation "h" :space-evenly false :hexpand true
+    (label :class "spotify-playlist-name" :text {replace(jq(pl, '.name'), '^"|"$', '')}
+      :hexpand true :halign "start" :limit-width 22)
+    (eventbox :cursor "pointer" (button :class "spotify-play-icon-btn"
+      :onclick "~/.config/eww/scripts/spotify_ctl.sh play-uri ${replace(jq(pl, '.uri'), '^\"|\"$', '')}"
+      ""))))
+
+(defwidget spotify-track-row [track]
+  (box :class "spotify-track-row" :orientation "h" :space-evenly false :hexpand true
+    (box :orientation "v" :space-evenly false :hexpand true :halign "start"
+      (label :class "spotify-result-name" :text {replace(jq(track, '.name'), '^"|"$', '')}
+        :hexpand true :halign "start" :limit-width 22)
+      (label :class "spotify-result-artist" :text {replace(jq(track, '.artist'), '^"|"$', '')}
+        :hexpand true :halign "start" :limit-width 26))
+    (eventbox :cursor "pointer" (button :class "spotify-play-icon-btn"
+      :onclick "~/.config/eww/scripts/spotify_ctl.sh play-uri ${replace(jq(track, '.uri'), '^\"|\"$', '')}"
+      ""))))
